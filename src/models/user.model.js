@@ -41,6 +41,22 @@ function User(sequelize) {
                 }
             }
         },
+        mobileNumber: {
+            type: DataTypes.STRING,  // Using STRING for phone number
+            allowNull: false,
+            validate: {
+                notNull: {
+                    msg: 'Please insert your mobile number'
+                },
+                notEmpty: {
+                    msg: 'Please insert your mobile number'
+                },
+                is: {
+                    args: /^\+?[1-9]\d{1,14}$/,
+                    msg: 'Please provide a valid phone number with country code'
+                }
+            }
+        },
         password: {
             type: DataTypes.STRING,
             allowNull: false,

@@ -4,7 +4,7 @@ import { Users } from '../db.connect.js';
 // creates new user to database
 export async function createUser(userData) {
     try {
-        let { username, email, password} = userData;
+        let { username, email, mobileNumber, password} = userData;
 
         if (email) email = email.toLowerCase();
         
