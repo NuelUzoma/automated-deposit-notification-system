@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// MySQL Configurations
 
 const mysqlConfig = {
     host: process.env.DB_HOST,

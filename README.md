@@ -1,6 +1,6 @@
 # Automated Deposit Notification System
 
-This project implements an automated deposit notification system. It verifies user authentication and performs automated deposit operations at regular intervals, sending notifications upon failed transactions.
+This project implements an automated deposit notification system. It verifies user authentication and performs automated deposit operations at regular intervals, sending email or mobile notifications upon failed transactions due to insufficient funds in their wallet balance.
 
 ## Table of Contents
 
@@ -11,6 +11,8 @@ This project implements an automated deposit notification system. It verifies us
 - [Configuration](#configuration)
 - [Running the Application](#running-the-application)
 - [Scheduling Automated Deposits](#scheduling-automated-deposits)
+- [Database Models](#database-models)
+- [API Endpoints](#api-endpoints)
 - [License](#license)
 
 ## Installation
@@ -189,3 +191,240 @@ The project uses an HTTP Endpoint Trigger to schedule automated deposit tasks.
     const THREE_MINUTES = 3 * 60 * 1000;
     ```
 
+### Database Models
+
+### User
+
+| field            | data_type     | constraints      |
+| ---------        | ------------- | ---------------- |
+| id               | integer       | required         |
+| username         | string        | required, unique |
+| email            | string        | required, unique |
+| mobileNumber     | string        | required         |
+| password         | string        | required, unique |
+
+### Wallet
+
+| field            | data_type     | constraints      |
+| ---------        | ------------- | ---------------- |
+| id               | integer       | required         |
+| userId           | integer       | required, unique |
+| balance          | float         | defaultValue     |
+| transactionHistory| json         | defaultValue     |
+
+### API Endpoints
+
+### Base URL
+
+- http://localhost:3000/api
+
+### Creating a user
+
+- Route: /auth/signup
+- Method: POST
+
+:point_down: To implement
+
+- Creates a new user with username, email mobile number and password.
+
+:point_down: Body
+
+```json
+{
+  "username": "Test",
+  "email": "emma@gmail.com",
+  "mobileNumber": "+2349012345678",
+  "password": "Test100$"
+}
+```
+
+:point_down: Response
+
+```json
+{
+  "success": true,
+  "message": "user successfully created"
+}
+```
+
+### Login user
+
+- Route: /auth/login
+- Method: POST
+
+:point_down: Body
+
+```json
+{
+  "email": "emma@gmail.com",
+  "password": "Test100$"
+}
+```
+
+:point_down: Response
+
+```json
+{
+  "userId": 5,
+  "success": true,
+  "message": "Logged in Successfully"
+}
+```
+
+### Get User
+Retrieves the information of the logged in user
+
+- Route: auth/getUser
+- Method: GET
+
+- Url: /api/auth/user
+
+:point_down: Response
+```json
+{
+  "user": {
+    "id": 5,
+    "username": "Test",
+    "email": "emma@gmail.com",
+    "mobileNumber": "+2349012345678",
+    "createdAt": "2024-06-04T09:46:54.000Z",
+    "updatedAt": "2024-06-04T09:46:54.000Z"
+  }
+}
+```
+
+### Find User
+Finds a user with either the username or email or both specified in the request body.
+
+- Route: auth/user/find
+- Method: POST
+
+- Url: /api/auth/user/find
+
+:point_down: Body
+```json
+{
+  "username": "Test"
+}
+```
+
+:point_down: Response
+```json
+{
+  "id": 5,
+  "username": "Test",
+  "email": "emma@gmail.com",
+  "mobileNumber": "+2349012345678",
+  "createdAt": "2024-06-04T09:46:54.000Z",
+  "updatedAt": "2024-06-04T09:46:54.000Z"
+}
+```
+
+### Create Wallet
+Creates a new wallet for a user
+
+- Route: wallets/create
+- Method: POST
+
+- Url: /api/wallets/create
+
+:point_down: Response
+```json
+{
+  "wallet": {
+    "balance": 0,
+    "transactionHistory": [],
+    "id": 8,
+    "userId": 5,
+    "updatedAt": "2024-06-04T09:50:47.339Z",
+    "createdAt": "2024-06-04T09:50:47.339Z"
+  },
+  "message": "Wallet created successfully"
+}
+```
+
+### Wallet Deposit
+Deposits an amount from a user's wallets to another user wallet. If balance threshold is enough, deposit is successful, if not, it sends a notification to the user initiating the deposit of a failed transaction due to insufficient funds.
+
+- Route: wallets/deposit/:walletId
+- Method: PUT
+
+- Url: /api/wallets/deposit/2
+
+#### Successful Deposit
+
+:point_down: Body
+```json
+{
+  "amount": 0,
+  "notificationType": "email"
+}
+```
+
+:point_down: Response
+```json
+{
+  "message": "Amount Deposit Successful"
+}
+```
+
+#### Unsuccessful Deposit
+
+:point_down: Body
+```json
+{
+  "amount": 10,
+  "notificationType": "email"
+}
+```
+
+:point_down: Response
+```json
+{
+  "error": "Insufficient Funds"
+}
+```
+A notification is then sent, either by email or mobile (specified by user) to the user.
+
+### Automated Wallet Deposit
+Automates the deposit of an amount from a user's wallets to another user wallet, with interval to be manually preset. If balance threshold is enough, deposit is successful, if not, it sends a notification to the user initiating the deposit of a failed transaction due to insufficient funds.
+
+- Route: wallets/trigger-deposit
+- Method: POST
+
+- Url: /api/wallets/trigger-deposit
+
+#### Successful Deposit
+
+:point_down: Body
+```json
+{
+  "amount": 0,
+  "notificationType": "email"
+}
+```
+
+:point_down: Response
+```json
+{
+  "message": "Amount Deposit Successful"
+}
+```
+
+#### Unsuccessful Deposit
+
+:point_down: Body
+```json
+{
+  "amount": 10,
+  "notificationType": "email"
+}
+```
+
+:point_down: Response
+```json
+{
+  "error": "Insufficient Funds"
+}
+```
+A notification is then sent, either by email or mobile (specified by user) to the user.

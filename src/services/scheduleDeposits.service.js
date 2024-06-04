@@ -5,7 +5,7 @@ import logger from '../logging/logger.js';
 export const triggerAutomatedDeposit = async (req, res) => {
     try {
         const authResponse = await axios.post('http://localhost:3000/api/auth/login', {
-            email: "emmanuelmadubuike.dev@gmail.com",
+            email: "emma@gmail.com",
             password: "Test100$"
         }, {
             withCredentials: true
@@ -14,7 +14,6 @@ export const triggerAutomatedDeposit = async (req, res) => {
         const userId = authResponse.data.userId;
         console.log('User ID: ', userId);
 
-        // const walletId = 2;
         const response = await axios.put(`http://localhost:3000/api/wallets/deposit/:walletId`, {
             userId: userId, // The authenticated user's ID
             walletId: 4,

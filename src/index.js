@@ -57,6 +57,7 @@ app.use('/api/wallets', walletRouter);
 // Import the scheduled automated deposits service
 import './services/scheduleDeposits.service.js';
 
+
 app.listen(PORT, () => {
     logger.info(`Server is running on PORT ${PORT}`)
 });

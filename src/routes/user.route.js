@@ -14,7 +14,7 @@ userRouter.post('/login', httpLoginUser);
 
 userRouter.get('/user', httpGetUser);
 
-userRouter.get('/find', httpFindUser);
+userRouter.post('/find', httpFindUser);
 
 
 export default userRouter;

@@ -28,12 +28,12 @@ const format = winston.format.combine(
 );
 
 const errorTransport = new winston.transports.File({
-  filename: 'logs/error.log',
+  filename: 'logs/error.log', // Errors are logged in this file
   level: 'error',
 });
 
 const infoTransport = new winston.transports.File({
-  filename: 'logs/all.log',
+  filename: 'logs/all.log', // All information are logged in this file
   level: 'http',
 });
 

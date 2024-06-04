@@ -58,7 +58,7 @@ export const Wallets = db.wallets;
 
 // sync all models
 // force: false will not drop the table if it already exists
-db.sequelize.sync({ force: false })
+db.sequelize.sync({ force: true })
     .then(async () => {
         logger.info('Database & tables synced');
     }).catch(err => {
