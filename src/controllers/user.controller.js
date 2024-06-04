@@ -1,4 +1,5 @@
 import passport from 'passport';
+import logger from '../logging/logger.js';
 import {
     createUser,
     findUser
@@ -35,11 +36,11 @@ export async function httpLoginUser(req, res, next) {
                     next(err);
                 } else {
                     res.json({
+                        userId: req.user.id,
                         success: true,
                         message: info.message
                     });
                 }
-                console.log(user);
             });
         } catch (error) {
             return next(error);
@@ -68,16 +69,17 @@ export async function httpFindUser(req, res, next) {
 export async function httpGetUser(req, res, next) {
     try {
         const user = req.user;
+        logger.info('Authenticated: ', req.isAuthenticated());
 
         setTimeout(()=>{
             console.log(user);
-            console.log('Is User Authenticated?: ',req.isAuthenticated());
             if (user) {
+                // Send user details as response
                 return res.json({ user });
             } else {
-                return res.status(404).json({ message: 'Req Error: You are not logged in'});
+                return res.status(401).json({ message: 'Unauthorized' });
             }
-        }, 3000); // 3 seconds timeout to fetch logged in user details
+        }, 3000); // Timeout of 3 seconds to fetch user after login
     } catch (err){
         next(err);
     }

@@ -5,6 +5,8 @@ import connectSessionSequelize from 'connect-session-sequelize';
 import logger from '../logging/logger.js';
 
 import User from '../models/user.model.js';
+import Profile from '../models/profile.model.js';
+import Wallet from '../models/wallet.model.js';
 
 // Sequelize configuration
 const sequelize = new Sequelize(
@@ -46,8 +48,12 @@ db.Sequelize = Sequelize;
 
 // Add models
 db.users = User(sequelize);
+db.profiles = Profile(sequelize);
+db.wallets = Wallet(sequelize);
 
 export const Users = db.users;
+export const Profiles = db.profiles;
+export const Wallets = db.wallets;
 
 
 // sync all models
