@@ -33,7 +33,7 @@ class UserManagementService {
 
     static async sendEmailNotification(email, subject, message) {
         try {
-            // Send email to user using nodemailer
+            // Send email to user using Nodemailer
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 host: process.env.MAIL_HOST,
@@ -86,7 +86,7 @@ class UserWalletService {
     }
 
     static async performDeposit(userId, walletId, amount) {
-        // Logic or Cron job to perform automated deposits
+        // Logic to perform deposits
         try {
             // Retrieve Users Wallet
             const user1Wallet = await Wallets.findOne({ where: { id: userId } }); // Depositor

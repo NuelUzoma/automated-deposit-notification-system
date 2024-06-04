@@ -10,18 +10,3 @@ export async function createWallet(userId, balance) {
         throw err;
     }
 }
-
-// Decrement Wallet balance after Successful Deposit
-// export async function walletDeposit(userId, walletId) {
-//     try {
-//         const userWallet = await Wallets.findOne({
-//             where: {
-//                 userId,
-//                 walletId
-//             }
-//         });
-//         return userWallet;
-//     } catch (err) {
-//         throw err;
-//     }
-// }
