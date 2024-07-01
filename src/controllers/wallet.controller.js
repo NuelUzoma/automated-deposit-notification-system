@@ -1,46 +1,25 @@
-import {
-    createWallet,
-    // walletDeposit
-} from '../database/queries/wallet.js';
-import { Users, Wallets } from '../database/db.connect.js'
+import { db, Users, Wallets } from '../database/db.connect.js'
 import { UserManagementService, UserWalletService } from '../services/user.service.js';
+import logger from '../logging/logger.js';
+import { createTransaction } from '../database/queries/transaction.js';
 
-
-export async function httpCreateWallet(req, res, next) {
-    try {
-        const userId = req.user.id;
-        const { balance } = req.body;
-
-        // Create new wallet record in the database
-        const wallet = await createWallet(userId, balance);
-
-        // Return created wallet as response
-        if (wallet) {
-            res.status(201).json({
-                wallet,
-                message: 'Wallet created successfully'
-            });
-        } else {
-            res.status(500).json({ error: 'An error occurred while creating the wallet' });
-        }
-    } catch (err) {
-        next(err);
-    }
-}
 
 // Function for Wallet-to-Wallet Automated Deposit between Users
 export async function httpWalletDeposit(req, res, next) {
+    let transaction;
+
     try {
-        const userId = req.user.id;
-        const walletId = req.params.walletId; // The walletId of reciepient
+        transaction = await db.sequelize.transaction(); // Create Transaction
+        const userId = parseInt(req.user.id, 10);
+        const reciepientWalletId = req.params.walletId; // The walletId of reciepient
         const { amount, notificationType } = req.body; // Amount to be deposited and specify notification type
 
         // Retrieve wallet records for user1(depositor) and user2(reciepient)
-        const user1Wallet = await Wallets.findOne({ where: { id: userId } }); // Depositor
-        const user2Wallet = await Wallets.findOne({ where: { id: walletId } }); // Reciepient
+        const userWallet = await Wallets.findOne({ where: { userId: userId } }); // Depositor
+        const reciepientWallet = await Wallets.findOne({ where: { id: reciepientWalletId } }); // Reciepient
 
         // Return error if wallet is not found
-        if (!user1Wallet || !user2Wallet) {
+        if (!userWallet || !reciepientWallet) {
             res.status(404).json({ error: 'Wallet not found' });
         }
 
@@ -75,14 +54,36 @@ export async function httpWalletDeposit(req, res, next) {
             // Return error response
             res.status(400).json({ error: 'Insufficient Funds' });
         } else {
-            // Perform the automated deposit by updating the balances using User Wallet Service
-            await UserWalletService.performDeposit(userId, walletId, amount)
+            // Perform the automated deposit by updating the balances and transaction history using User Wallet Service
+            await UserWalletService.performDeposit(userId, reciepientWalletId, amount, transaction);
+
+            // Update the transaction history for the deposit in the database
+            const username = req.user.username;
+            const reciepientUserId = parseInt(reciepientWallet.userId, 10);
+
+            const reciepientUser = await Users.findOne({ where: {
+                id: reciepientUserId
+            }});
+
+            const reciepientUsername = reciepientUser.username
+
+            await createTransaction({
+                senderId: userId,
+                reciepientId: reciepientUserId,
+                details: [`Depositor: ${username}, Reciepient: ${reciepientUsername}, Amount: ${amount}, Transaction Successful`]
+            }, transaction).then(logger.info('Transaction History updated'));
 
             // Return successful response
+            await transaction.commit();
             res.status(201).json({ message: 'Amount Deposit Successful' });
         }
     } catch (err) {
-        res.status(500).json({ error: 'An error occurred while processing the deposit' });
+        if (transaction) {
+            await transaction.rollback(); // Abort transaction on error
+        }
+        // res.status(500).json({
+        //     error: 'An error occurred while processing the deposit'
+        // });
         next(err);
     }
 }

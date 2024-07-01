@@ -67,11 +67,11 @@ class UserWalletService {
         // Logic to check if user balance is sufficient
         try {
             // Retrieve user wallet based on userId
-            const userWallet = await Wallets.findOne({ where: { id: userId } }); // Depositor
+            const userWallet = await Wallets.findOne({ where: { userId: userId } }); // Depositor
 
             // Return error if wallet is not found
             if (!userWallet) {
-                res.status(404).json({ error: 'Wallet not found' });
+                throw new Error('Wallet not found' );
             }
 
             // Compare user's wallet with the amount
@@ -85,25 +85,29 @@ class UserWalletService {
         }
     }
 
-    static async performDeposit(userId, walletId, amount) {
+    static async performDeposit(userId, walletId, amount, transaction) {
         // Logic to perform deposits
         try {
+            // Validate deposit amount
+            if (amount <= 0 || !Number.isInteger(amount)) {
+                throw new Error('Deposit amount must be a positive integer greater than 0');
+            }
             // Retrieve Users Wallet
-            const user1Wallet = await Wallets.findOne({ where: { id: userId } }); // Depositor
-            const user2Wallet = await Wallets.findOne({ where: { id: walletId } }); // Reciepient
+            const userWallet = await Wallets.findOne({ where: { userId: userId } }); // Depositor
+            const reciepientWallet = await Wallets.findOne({ where: { id: walletId } }); // Reciepient
 
             // Return error if wallet is not found
-            if (!user1Wallet || !user2Wallet) {
-                res.status(404).json({ error: 'Wallet not found' });
+            if (!userWallet || !reciepientWallet) {
+                throw new Error('Wallet not found' );
             }
 
             // Perform the deposit by updating the balances
-            user1Wallet.balance -= amount;
-            user2Wallet.balance += amount;
+            userWallet.balance -= amount;
+            reciepientWallet.balance += amount;
 
             // Update wallet records in the database
-            await user1Wallet.save();
-            await user2Wallet.save();
+            await userWallet.save();
+            await reciepientWallet.save();
 
         } catch (err) {
             throw err;

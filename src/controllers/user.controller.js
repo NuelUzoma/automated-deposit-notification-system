@@ -4,16 +4,40 @@ import {
     createUser,
     findUser
 } from '../database/queries/user.js';
+import { createWallet } from '../database/queries/wallet.js';
+import { UserManagementService } from '../services/user.service.js';
 
 
 // Signup
 export async function httpSignupUser(req, res, next) {
     try {
         const userData = req.body;
-        await createUser(userData);
+        const { balance } = req.body;
+        
+        // Create user first
+        const user = await createUser(userData);
+        const userId = user.id;
+
+        // Create wallet linked to user signing up
+        const wallet = await createWallet(userId, balance);
+
+        // Send confirmation email to user upon successful registration
+        try {
+            const subject = 'Welcome to ADNS!'
+            const message = `Dear ${user.username},
+            Welcome to ADNS - Africa's leading payment service provider
+        
+            This email confirms your registration on ADNS
+            Thanks for being a valued member and get ready to take-off to the moon!`
+
+            await UserManagementService.sendEmailNotification(user.email, subject, message);
+        } catch (err) {
+            throw new Error("SMTP Network Error: ", err);
+        }
         res.status(201).json({
             success: true,
-            message: 'user successfully created'
+            message: 'user successfully created',
+            wallet
         });
     } catch(err) {
         next(err);
