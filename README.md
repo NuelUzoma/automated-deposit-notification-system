@@ -274,7 +274,7 @@ The project uses an HTTP Endpoint Trigger to schedule automated deposit tasks.
 ### Get User
 Retrieves the information of the logged in user
 
-- Route: auth/getUser
+- Route: auth/user
 - Method: GET
 
 - Url: /api/auth/user
@@ -296,10 +296,10 @@ Retrieves the information of the logged in user
 ### Find User
 Finds a user with either the username or email or both specified in the request body.
 
-- Route: auth/user/find
+- Route: auth/find
 - Method: POST
 
-- Url: /api/auth/user/find
+- Url: /api/auth/find
 
 :point_down: Body
 ```json

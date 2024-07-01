@@ -4,7 +4,7 @@ import { Users } from '../db.connect.js';
 // creates new user to database
 export async function createUser(userData) {
     try {
-        let { username, email, mobileNumber, password} = userData;
+        let { username, email, mobileNumber, password } = userData;
 
         if (email) email = email.toLowerCase();
         
@@ -19,7 +19,10 @@ export async function createUser(userData) {
 // Find a user from db either by username or email
 export async function findUser(userData) {
     try {
-        const user = await Users.findOne({ where: userData });
+        const user = await Users.findOne({
+            where: userData,
+            attributes: { exclude: ['password'] }
+        });
         return user;
     } catch(err) {
         throw err;
